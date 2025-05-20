@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>𖡎</title>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAm-HTNn0ooIyVaKNK1oaucy_H8tOUc4lY",
+      authDomain: "asdfghjk-17e2a.firebaseapp.com",
+      projectId: "asdfghjk-17e2a",
+      storageBucket: "asdfghjk-17e2a.firebasestorage.app",
+      messagingSenderId: "739134733369",
+      appId: "1:739134733369:web:7bc3049a1446d5827721e8",
+      measurementId: "G-HSZ9RJ1QMQ"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Enable offline persistence
+    db.enablePersistence()
+      .catch((err) => {
+        if (err.code == 'failed-precondition') {
+          console.log('Persistence failed');
+        } else if (err.code == 'unimplemented') {
+          console.log('Persistence not available');
+        }
+      });
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* Loading animation styles */
+    .loading-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .loading-spinner {
+      width: 25px;
+      height: 25px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #333;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #ffffff;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #000000;
+      font-size: 24px;
+      margin: 20px;
+    }
+    h2 {
+      color: #000000;
+      font-size: 20px;
+      margin: 0px;
+    }
+    .category-block {
+      margin-bottom: 1.5em;
+      padding-bottom: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .category-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .category-title h4 {
+      margin: 0;
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    .category-title h4:hover {
+      background-color: #f5f5f5;
+    }
+
+    .category-title h4.editing {
+      background-color: #f5f5f5;
+      border: 1px solid #ccc;
+      padding: 2px 5px;
+    }
+
+    .category-title h4 input {
+      width: 100px;
+      padding: 2px 5px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .category-title input {
+      width: 150px;
+      padding: 5px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .category-title button {
+      background: none;
+      color: #000000;
+      border: none;
+      padding: 1.25px 2.5px;
+      cursor: pointer;
+      font-size: 10.5px;
+      width: 10.5px;
+      height: 10.5px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .category-title button:hover {
+      color: #333333;
+    }
+
+    .tag {
+      background-color: #e3e3e3;
+      color: #333;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: move;
+      transition: background-color 0.2s;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .tag:hover {
+      background-color: #d1d1d1;
+    }
+
+    .tag.dragging {
+      opacity: 0.5;
+    }
+
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      min-height: fit-content;
+      min-height: 50px;
+      padding: 8px;
+      border: 1px dashed transparent;
+      transition: border-color 0.2s;
+    }
+
+    .tag-container.drag-over {
+      border-color: #333;
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .tag button {
+      font-size: 10px;
+      background: none;
+      color: #333;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 6px;
+    }
+
+    .tag button:hover {
+      color: #666;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .input-container {
+      margin: 10px 0;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .input-container input {
+      padding: 5px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .input-container button {
+      background: none;
+      color: #000000;
+      border: none;
+      padding: 1.25px 2.5px;
+      cursor: pointer;
+      font-size: 10.5px;
+      width: 10.5px;
+      height: 10.5px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .input-container button:hover {
+      color: #333333;
+    }
+
+    .generated-combination {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      padding: 10px;
+      color: rgb(0, 0, 0);
+      border-radius: 8px;
+      font-size: 18px;
+      width: 200px;
+      text-align: center;
+      line-height: 2;
+    }
+
+    .category-wrapper {
+      border: 1px solid #585858;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 0 auto 20px;
+      width: 90%;
+      max-width: 1937px;
+      box-sizing: border-box;
+    }
+
+    .category-wrapper .category-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      margin-top: 0;
+      width: 100%;
+    }
+
+    .category-wrapper .category-title .title-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .category-wrapper .category-title .input-container {
+      margin: 0;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex: 1;
+      justify-content: flex-end;
+      min-width: 0;
+      margin-left: 10px;
+      transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+      max-height: 50px;
+      opacity: 1;
+    }
+
+    .category-wrapper .category-title .input-container input {
+      width: 100%;
+      min-width: 100px;
+      max-width: 200px;
+      padding: 5px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .category-wrapper .category-title .input-container button {
+      background: none;
+      color: #000000;
+      border: none;
+      padding: 1.25px 2.5px;
+      cursor: pointer;
+      font-size: 10.5px;
+      width: 10.5px;
+      height: 10.5px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .category-wrapper .category-title .input-container button:hover {
+      color: #333333;
+    }
+
+    .category-wrapper .category-title .input-container .delete-btn {
+      flex-shrink: 0;
+    }
+
+    .category-wrapper .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      min-height: fit-content;
+      padding: 8px;
+      border: 1px dashed transparent;
+      transition: border-color 0.2s;
+      margin-bottom: 10px;
+    }
+
+    .category-wrapper .tag {
+      background-color: #e3e3e3;
+      color: #333;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: move;
+      transition: background-color 0.2s;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .category-wrapper .tag:hover {
+      background-color: #d1d1d1;
+    }
+
+    .category-wrapper .input-container {
+      margin-top: 10px;
+    }
+
+    .category-wrapper .input-container input {
+      width: 150px;
+      padding: 5px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .category-wrapper .input-container button {
+      background: none;
+      color: #000000;
+      border: none;
+      padding: 1.25px 2.5px;
+      cursor: pointer;
+      font-size: 10.5px;
+      width: 10.5px;
+      height: 10.5px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .category-wrapper .input-container button:hover {
+      color: #333333;
+    }
+
+    .category-wrapper .input-container select {
+      padding: 5px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #333;
+      outline: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 5px center;
+      background-size: 16px;
+      padding-right: 25px;
+    }
+
+    .category-wrapper .input-container select:hover {
+      color: #666;
+    }
+
+    .category-wrapper .input-container select:focus {
+      outline: none;
+    }
+
+    .category-wrapper .input-container select option {
+      background-color: #fff;
+      color: #333;
+      padding: 5px;
+    }
+
+    .category-wrapper .delete-btn {
+      background: none;
+      color: #000000;
+      border: none;
+      padding: 1.25px 2.5px;
+      cursor: pointer;
+      font-size: 10.5px;
+      width: 10.5px;
+      height: 10.5px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .category-wrapper .delete-btn:hover {
+      color: #333333;
+    }
+
+    #dynamicModules {
+      width: 100%;
+      max-width: 1937px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    #dynamicCategories {
+      display: contents;
+    }
+
+    .category-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .category-item {
+      border: 1px solid #585858;
+      padding: 10px;
+      border-radius: 8px;
+      box-sizing: border-box;
+      min-width: 240px;
+      position: relative;
+    }
+
+    .category-item#toyCategory,
+    .category-item.dynamic-category {
+      position: relative;
+    }
+
+    .category-item#toyCategory .delete-btn,
+    .category-item.dynamic-category .delete-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: none;
+      color: #000000;
+      border: none;
+      padding: 1.25px 2.5px;
+      cursor: pointer;
+      font-size: 10.5px;
+      width: 10.5px;
+      height: 10.5px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .category-item#toyCategory .delete-btn:hover,
+    .category-item.dynamic-category .delete-btn:hover {
+      color: #333333;
+    }
+
+    .category-item#toyCategory .delete-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: none;
+      color: #000000;
+      border: none;
+      padding: 1.25px 2.5px;
+      cursor: pointer;
+      font-size: 10.5px;
+      width: 10.5px;
+      height: 10.5px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .category-item#toyCategory .delete-btn:hover {
+      color: #333333;
+    }
+
+    .category-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+      width: 100%;
+    }
+
+    .category-item .category-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      margin-top: 0;
+      width: 100%;
+    }
+
+    .category-item .category-title h4 {
+      margin: 0;
+      padding: 0;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+
+    .category-item .input-container-category {
+      margin: 0;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex: 1;
+      justify-content: flex-end;
+      min-width: 0;
+      margin-left: 10px;
+      width: 120px; /* 固定寬度 */
+    }
+
+    .category-item .input-container-category input {
+      width: 100%;
+      min-width: 100px;
+      max-width: 190px;
+      padding: 5px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .category-item .input-container-category button {
+      background: none;
+      color: #000000;
+      border: none;
+      padding: 1.25px 2.5px;
+      cursor: pointer;
+      font-size: 10.5px;
+      width: 10.5px;
+      height: 10.5px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .category-item .input-container-category button:hover {
+      color: #333333;
+    }
+
+    .category-item .input-container-category .delete-btn {
+      flex-shrink: 0;
+    }
+
+    .category-item .tag-container {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: fit-content;
+    }
+
+    .category-item .tag {
+      background-color: #e3e3e3;
+      color: #333;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: move;
+      transition: background-color 0.2s;
+      box-shadow: none;
+    }
+
+    .category-item .tag:hover {
+      background-color: #d1d1d1;
+    }
+
+    .input-container {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .input-container label {
+      margin-right: 10px;
+    }
+
+    .input-container select {
+      padding: 5px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .delete-btn {
+      background: none;
+      color: #000000;
+      border: none;
+      padding: 1.25px 2.5px;
+      cursor: pointer;
+      font-size: 10.5px;
+      width: 10.5px;
+      height: 10.5px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .delete-btn:hover {
+      color: #333333;
+    }
+
+    .generated-combination .tag {
+      background-color: transparent;
+      border: 1px solid #333;
+      color: #333;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      line-height: 1;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .generated-combination .tag:hover {
+      background-color: transparent;
+    }
+
+    .category-wrapper[id$="Module"] {
+      width: 90vw;
+      max-width: 1937px;
+      margin: 0 auto 20px;
+      padding: 10px;
+      border: 1px solid #585858;
+      border-radius: 8px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .category-wrapper[id$="Module"] .category-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      margin-top: 0;
+      width: 100%;
+    }
+
+    .category-wrapper[id$="Module"] .category-title .title-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .category-wrapper[id$="Module"] .category-title .input-container {
+      margin: 0;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex: 1;
+      justify-content: flex-end;
+      min-width: 0;
+      margin-left: 10px;
+    }
+
+    .category-wrapper[id$="Module"] .category-title .input-container input {
+      width: 100%;
+      min-width: 100px;
+      max-width: 200px;
+      padding: 5px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .category-wrapper[id$="Module"] .category-title .input-container button {
+      background: none;
+      color: #000000;
+      border: none;
+      padding: 1.25px 2.5px;
+      cursor: pointer;
+      font-size: 10.5px;
+      width: 10.5px;
+      height: 10.5px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .category-wrapper[id$="Module"] .category-title .input-container button:hover {
+      color: #333333;
+    }
+
+    .category-wrapper[id$="Module"] .category-title .input-container .delete-btn {
+      flex-shrink: 0;
+    }
+
+    .category-wrapper[id$="Module"] .category-title h2 {
+      margin: 0;
+      font-size: 20px;
+      color: #000000;
+      cursor: pointer;
+    }
+
+    .category-wrapper[id$="Module"] .category-title h2:hover {
+      background-color: #f5f5f5;
+    }
+
+    .category-wrapper[id$="Module"] .category-title h2.editing {
+      background-color: #f5f5f5;
+      border: 1px solid #ccc;
+      padding: 2px 5px;
+    }
+
+    .category-wrapper[id$="Module"] .category-title h2 input {
+      width: 100px;
+      padding: 2px 5px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .category-wrapper[id$="Module"] .input-container {
+      margin: 0;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .category-wrapper[id$="Module"] .input-container input {
+      width: 150px;
+      padding: 5px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .category-wrapper[id$="Module"] .input-container button {
+      background: none;
+      color: #000000;
+      border: none;
+      padding: 1.25px 2.5px;
+      cursor: pointer;
+      font-size: 10.5px;
+      width: 10.5px;
+      height: 10.5px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .category-wrapper[id$="Module"] .input-container button:hover {
+      color: #333333;
+    }
+
+    .category-wrapper[id$="Module"] .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      min-height: fit-content;
+      padding: 8px;
+      border: 1px dashed transparent;
+      transition: border-color 0.2s;
+      margin-bottom: 10px;
+    }
+
+    .category-wrapper[id$="Module"] .tag {
+      background-color: #e3e3e3;
+      color: #333;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: move;
+      transition: background-color 0.2s;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .category-wrapper[id$="Module"] .tag:hover {
+      background-color: #d1d1d1;
+    }
+
+    .category-wrapper[id$="Module"] .tag button {
+      font-size: 10px;
+      background: none;
+      color: #333;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .category-wrapper[id$="Module"] .tag button:hover {
+      color: #666;
+    }
+
+    .category-wrapper[id$="Module"] .delete-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: none;
+      color: #000000;
+      border: none;
+      padding: 1.25px 2.5px;
+      cursor: pointer;
+      font-size: 10.5px;
+      width: 10.5px;
+      height: 10.5px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .category-wrapper[id$="Module"] .delete-btn:hover {
+      color: #333333;
+    }
+
+    .category-wrapper#emotionCategory {
+      width: 90%;
+      max-width: 1937px;
+      margin: 0 auto 20px;
+      padding: 10px;
+      border: 1px solid #585858;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    .add-module-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      margin: 10px 0;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .add-module-btn:hover {
+      color: #666;
+    }
+
+    /* 針對 checkbox 的特定樣式 */
+    .category-wrapper .input-container input[type="checkbox"]#differentCategories {
+      width: auto; /* 恢復checkbox的寬度 */
+      padding: 0; /* 去除內邊距 */
+      border-radius: 4px; /* 保持邊角圓滑 */
+      border: 2px solid #000; /* 自定義邊框 */
+      background-color: rgb(0, 0, 0); /* 自定義背景顏色 */
+      cursor: pointer; /* 更改游標樣式 */
+    }
+
+    .category-wrapper .input-container input[type="checkbox"]#differentCategories:checked {
+      background-color: #333; /* 當勾選時的背景顏色 */
+    }
+
+    /* 控制 container 內部間距 */
+    .checkbox-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    }
+
+    .title-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .collapse-btn {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0 5px;
+      transition: transform 0.3s ease;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .collapse-btn:hover {
+      color: #333;
+    }
+
+    .category-content {
+      transition: max-height 0.3s ease-out;
+      overflow: hidden;
+      max-height: 2000px; /* 設置一個足夠大的初始高度 */
+    }
+
+    .category-content.collapsed {
+      max-height: 0;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* 當內容被折疊時，旋轉箭頭 */
+    .category-wrapper:has(.category-content.collapsed) .collapse-btn {
+      transform: rotate(-60deg);
+    }
+
+    .symbol-btn {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0 5px;
+      transition: color 0.3s ease;
+    }
+
+    .symbol-btn:hover {
+      color: #333;
+    }
+
+    .clean-select {
+      padding: 5px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #333;
+      outline: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 5px center;
+      background-size: 16px;
+      padding-right: 25px;
+    }
+
+    .clean-select:hover {
+      color: #666;
+    }
+
+    .clean-select:focus {
+      outline: none;
+    }
+
+    .clean-select option {
+      background-color: #fff;
+      color: #333;
+      padding: 5px;
+    }
+
+    @media screen and (max-width: 768px) {
+      .category-item .category-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .category-item .input-container-category {
+        width: 100%;
+        margin: 10px 0 0 0;
+        justify-content: center;
+      }
+
+      .category-item .input-container-category input {
+        max-width: 100%;
+        width: 100%;
+      }
+
+      .category-wrapper .category-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .category-wrapper .category-title .input-container {
+        width: 100%;
+        margin: 10px 0 0 0;
+        justify-content: center;
+      }
+
+      .category-wrapper .category-title .input-container input {
+        max-width: 100%;
+        width: 100%;
+      }
+
+      .category-wrapper[id$="Module"] .category-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .category-wrapper[id$="Module"] .category-title .input-container {
+        width: 100%;
+        margin: 10px 0 0 0;
+        justify-content: center;
+      }
+
+      .category-wrapper[id$="Module"] .category-title .input-container input {
+        max-width: 100%;
+        width: 100%;
+      }
+
+      /* 修改collapse時的輸入欄樣式 */
+      .category-wrapper:has(.category-content.collapsed) .category-title .input-container,
+      .category-wrapper[id$="Module"]:has(.category-content.collapsed) .category-title .input-container,
+      .category-item:has(.category-content.collapsed) .category-title .input-container-category {
+        max-height: 0;
+        opacity: 0;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+    }
+
+    /* 新增：移除Uncategorized標題的hover效果 */
+    .category-item:first-child .category-title h4 {
+      cursor: default;
+    }
+
+    .category-item:first-child .category-title h4:hover {
+      background-color: transparent;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-container">
+    <div class="loading-spinner"></div>
+  </div>
+  <div style="display: flex; gap: 10px; margin-top: 40px;">
+    <button onclick="generateCombination()">Generate</button>
+    <button onclick="clearCombination()" id="clearButton" style="display: none;">Clear</button>
+  </div>
+
+  <div id="generatedCombination" class="generated-combination"></div>
+
+  <div class="category-wrapper" id="objectCategory">
+    <div class="category-title">
+      <div class="title-container">
+        <button class="collapse-btn" onclick="toggleCollapse('objectCategory')">▼</button>
+        <h2>Object</h2>
+        <select id="objectCount" onchange="updateObjectCount()" class="clean-select">
+          <option value="5">5</option>
+          <option value="4">4</option>
+          <option value="3" selected>3</option>
+          <option value="2">2</option>
+          <option value="1">1</option>
+          <option value="0">0</option>
+        </select>
+        <input type="checkbox" id="differentCategories" style="display: none;">
+        <button class="symbol-btn" onclick="toggleDifferentCategories()" id="differentCategoriesBtn">◆</button>
+      </div>
+      <div class="input-container">
+        <input type="text" id="newObject" placeholder="">
+      </div>
+    </div>
+    <div class="category-content" id="objectCategoryContent">
+      <div class="category-list">
+        <div class="category-item">
+          <div class="category-title">
+            <h4>𖡎</h4>
+            <div class="input-container-category">
+              <input type="text" id="newUncategorized" placeholder="">
+            </div>
+          </div>
+          <div class="tag-container" id="uncategorizedTags"></div>
+        </div>
+
+        <div id="dynamicCategories"></div>
+      </div> 
+    </div>
+  </div>
+
+  <div class="category-wrapper" id="emotionCategory">
+    <div class="category-title">
+      <div class="title-container">
+        <button class="collapse-btn" onclick="toggleCollapse('emotionCategory')">▼</button>
+        <h2>Emotion</h2>
+        <select id="emotionCount" onchange="updateEmotionCount()" class="clean-select">
+          <option value="5">5</option>
+          <option value="4">4</option>
+          <option value="3">3</option>
+          <option value="2" selected>2</option>
+          <option value="1">1</option>
+          <option value="0">0</option>
+        </select>
+      </div>
+      <div class="input-container">
+        <input type="text" id="newEmotion" placeholder="">
+      </div>
+    </div>
+    <div class="category-content" id="emotionCategoryContent">
+      <div class="tag-container" id="emotionTags"></div>
+    </div>
+  </div>
+
+  <div id="dynamicModules"></div>
+
+  <button onclick="addNewModule()" class="add-module-btn">+</button>
+
+  <script>
+    // Initialize data arrays
+    let uncategorizedTags = [];
+    let emotionTags = [];
+    let dynamicCategories = {};
+    let dynamicModules = {};
+
+    // Initialize data from Firestore
+    function initializeData() {
+      console.log('Loading data from Firestore...');
+      const docRef = firebase.firestore().collection('data').doc('main');
+      
+      docRef.get().then((doc) => {
+        if (doc.exists) {
+          console.log('Data exists in Firestore:', doc.data());
+          const data = doc.data();
+          
+          // Reset all data structures before loading
+          uncategorizedTags = [];
+          emotionTags = [];
+          dynamicCategories = {};
+          dynamicModules = {};
+          
+          // Load data from Firestore
+          if (data.uncategorizedTags) uncategorizedTags = [...data.uncategorizedTags];
+          if (data.emotionTags) emotionTags = [...data.emotionTags];
+          if (data.dynamicCategories) dynamicCategories = { ...data.dynamicCategories };
+          if (data.dynamicModules) dynamicModules = { ...data.dynamicModules };
+          
+          console.log('Loaded data:', {
+            uncategorizedTags,
+            emotionTags,
+            dynamicCategories,
+            dynamicModules
+          });
+          
+          // Initialize UI
+          updateTags('uncategorized');
+          updateTags('emotion');
+          updateDynamicCategories();
+          updateDynamicModules();
+        } else {
+          console.log('No data in Firestore, initializing with empty arrays');
+          // Reset all data structures
+          uncategorizedTags = [];
+          emotionTags = [];
+          dynamicCategories = {};
+          dynamicModules = {};
+          // Save empty state to Firestore
+          saveData();
+        }
+        
+        // Hide loading animation after data is loaded
+        document.querySelector('.loading-container').style.display = 'none';
+      }).catch((error) => {
+        console.error("Error loading data:", error);
+        // Hide loading animation even if there's an error
+        document.querySelector('.loading-container').style.display = 'none';
+      });
+    }
+
+    // Save data to Firestore
+    function saveData() {
+      console.log('Saving data to Firestore:', {
+        uncategorizedTags,
+        emotionTags,
+        dynamicCategories,
+        dynamicModules
+      });
+      
+      return firebase.firestore().collection('data').doc('main').set({
+        uncategorizedTags,
+        emotionTags,
+        dynamicCategories,
+        dynamicModules
+      });
+    }
+
+    function updateDynamicCategories() {
+      const container = document.getElementById('dynamicCategories');
+      if (!container) {
+        console.error('Dynamic categories container not found');
+        return;
+      }
+      
+      container.innerHTML = '';
+      
+      // Sort categories alphabetically
+      const sortedCategories = Object.entries(dynamicCategories).sort((a, b) => {
+        // Convert category names to lowercase for case-insensitive sorting
+        const nameA = a[0].toLowerCase();
+        const nameB = b[0].toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+      
+      sortedCategories.forEach(([key, tags]) => {
+        const categoryTitle = key.charAt(0).toUpperCase() + key.slice(1);
+        const categoryHtml = `
+          <div class="category-item dynamic-category">
+            <div class="category-title">
+              <h4 onclick="startEditing('${key}', this)">${categoryTitle}</h4>
+              <div class="input-container-category">
+                <input type="text" id="new${key}" placeholder="">
+              </div>
+            </div>
+            <div class="tag-container" id="${key}Tags"></div>
+            <button onclick="deleteCategory('${key}')" class="delete-btn">×</button>
+          </div>
+        `;
+        container.innerHTML += categoryHtml;
+      });
+      
+      // 在所有類別創建完成後，統一添加事件監聽器
+      Object.keys(dynamicCategories).forEach(category => {
+        const input = document.getElementById(`new${category}`);
+        if (input) {
+          input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+              addTag(category);
+            }
+          });
+        }
+        updateTags(category);
+      });
+    }
+
+    function addNewCategory() {
+      const categoryName = document.getElementById('newObject').value.trim();
+      if (categoryName) {
+        const categoryKey = categoryName.toLowerCase();
+        
+        // Check if category already exists
+        if (dynamicCategories[categoryKey] || categoryKey === 'uncategorized' || categoryKey === 'emotion') {
+          alert('Category already exists!');
+          return;
+        }
+        
+        // Initialize new category
+        dynamicCategories[categoryKey] = [];
+        
+        // Save to Firebase first
+        saveData().then(() => {
+          console.log('New category saved successfully');
+          // Then update the UI
+          updateDynamicCategories();
+          // Clear input
+          document.getElementById('newObject').value = '';
+        }).catch(error => {
+          console.error('Error saving new category:', error);
+          alert('Error saving category. Please try again.');
+        });
+      }
+    }
+
+    function addTag(category) {
+      console.log('Attempting to add tag for category:', category);
+      let input;
+      
+      // Get the correct input element based on category
+      if (category === 'uncategorized') {
+        input = document.getElementById('newUncategorized');
+      } else if (category === 'emotion') {
+        input = document.getElementById('newEmotion');
+      } else {
+        input = document.getElementById(`new${category}`);
+      }
+      
+      if (!input) {
+        console.error('Input element not found for category:', category);
+        return;
+      }
+      
+      const tag = input.value.trim();
+      if (tag) {
+        // Check for duplicates across all categories
+        let isDuplicate = false;
+        let duplicateCategory = '';
+
+        // Check in uncategorized
+        if (uncategorizedTags.includes(tag)) {
+          isDuplicate = true;
+          duplicateCategory = 'Uncategorized';
+        }
+        // Check in emotion
+        if (emotionTags.includes(tag)) {
+          isDuplicate = true;
+          duplicateCategory = 'Emotion';
+        }
+        // Check in dynamic categories
+        for (const [cat, tags] of Object.entries(dynamicCategories)) {
+          if (tags.includes(tag)) {
+            isDuplicate = true;
+            duplicateCategory = cat.charAt(0).toUpperCase() + cat.slice(1);
+            break;
+          }
+        }
+        // Check in dynamic modules
+        for (const [moduleId, module] of Object.entries(dynamicModules)) {
+          if (module.tags && module.tags.includes(tag)) {
+            isDuplicate = true;
+            duplicateCategory = module.name;
+            break;
+          }
+        }
+
+        if (isDuplicate) {
+          alert(`This tag already exists in category "${duplicateCategory}"!`);
+          input.value = '';
+          return;
+        }
+
+        console.log('Adding tag:', tag, 'to category:', category);
+        
+        if (category === 'emotion') {
+          emotionTags.push(tag);
+        } else if (category === 'uncategorized') {
+          uncategorizedTags.push(tag);
+        } else if (dynamicModules[category]) {
+          // Handle dynamic modules
+          if (!dynamicModules[category].tags) {
+            dynamicModules[category].tags = [];
+          }
+          dynamicModules[category].tags.push(tag);
+          console.log('Added tag to module:', category, 'Current tags:', dynamicModules[category].tags);
+        } else if (dynamicCategories[category]) {
+          // Handle dynamic categories
+          if (!dynamicCategories[category]) {
+            dynamicCategories[category] = [];
+          }
+          dynamicCategories[category].push(tag);
+          console.log('Added tag to category:', category, 'Current tags:', dynamicCategories[category]);
+        }
+        
+        input.value = '';
+        
+        // Update UI based on category type
+        if (dynamicModules[category]) {
+          // For modules, update the specific module's tags
+          const container = document.getElementById(`${category}Tags`);
+          if (container) {
+            container.innerHTML = '';
+            dynamicModules[category].tags.forEach(tag => {
+              const tagElement = document.createElement('span');
+              tagElement.classList.add('tag');
+              tagElement.draggable = true;
+              tagElement.dataset.category = category;
+              tagElement.dataset.tag = tag;
+              
+              // Add drag events
+              tagElement.addEventListener('dragstart', handleDragStart);
+              tagElement.addEventListener('dragend', handleDragEnd);
+              
+              tagElement.innerHTML = `${tag} <button onclick="removeTag('${category}', '${tag}')">×</button>`;
+              container.appendChild(tagElement);
+            });
+          }
+        } else {
+          // For regular categories, use the existing updateTags function
+          updateTags(category);
+        }
+        
+        // Save to Firebase after updating the data
+        saveData().then(() => {
+          console.log('Data saved successfully');
+        }).catch(error => {
+          console.error('Error saving data:', error);
+          alert('Error saving tag. Please try again.');
+        });
+      }
+    }
+
+    function removeTag(category, tag) {
+      if (category === 'uncategorized') {
+        uncategorizedTags = uncategorizedTags.filter(t => t !== tag);
+      } else if (category === 'emotion') {
+        emotionTags = emotionTags.filter(t => t !== tag);
+      } else if (dynamicModules[category]) {
+        dynamicModules[category].tags = dynamicModules[category].tags.filter(t => t !== tag);
+      } else if (dynamicCategories[category]) {
+        dynamicCategories[category] = dynamicCategories[category].filter(t => t !== tag);
+      }
+      
+      updateTags(category);
+      // Save to Firebase after removing the tag
+      saveData().then(() => {
+        console.log('Tag removed and saved successfully');
+      }).catch(error => {
+        console.error('Error saving data:', error);
+        alert('Error removing tag. Please try again.');
+      });
+    }
+
+    function updateTags(category) {
+      let tags;
+      if (category === 'uncategorized') {
+        tags = uncategorizedTags;
+      } else if (category === 'emotion') {
+        tags = emotionTags;
+      } else if (dynamicModules[category]) {
+        tags = dynamicModules[category].tags || [];
+      } else {
+        tags = dynamicCategories[category] || [];
+      }
+
+      const container = document.getElementById(`${category}Tags`);
+      if (container) {
+        container.innerHTML = '';
+        tags.forEach(tag => {
+          const tagElement = document.createElement('span');
+          tagElement.classList.add('tag');
+          tagElement.draggable = true;
+          tagElement.dataset.category = category;
+          tagElement.dataset.tag = tag;
+          
+          // Add drag events
+          tagElement.addEventListener('dragstart', handleDragStart);
+          tagElement.addEventListener('dragend', handleDragEnd);
+          
+          tagElement.innerHTML = `${tag} <button onclick="removeTag('${category}', '${tag}')">×</button>`;
+          container.appendChild(tagElement);
+        });
+
+        // Add drop events to container
+        container.addEventListener('dragover', handleDragOver);
+        container.addEventListener('drop', handleDrop);
+      }
+    }
+
+    // Drag and Drop functions
+    function handleDragStart(e) {
+      e.dataTransfer.setData('text/plain', JSON.stringify({
+        category: e.target.dataset.category,
+        tag: e.target.dataset.tag
+      }));
+      e.target.classList.add('dragging');
+    }
+
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging');
+      const containers = document.querySelectorAll('.tag-container');
+      containers.forEach(container => {
+        container.classList.remove('drag-over');
+      });
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = 'move';
+      const container = e.target.closest('.tag-container');
+      if (container) {
+        container.classList.add('drag-over');
+      }
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+      const sourceCategory = data.category;
+      const tag = data.tag;
+      const targetContainer = e.target.closest('.tag-container');
+      if (!targetContainer) return;
+      
+      const targetCategory = targetContainer.id.replace('Tags', '');
+
+      // Don't allow dropping in the same category
+      if (sourceCategory === targetCategory) return;
+
+      // Remove from source
+      removeTag(sourceCategory, tag);
+      
+      // Add to target
+      if (targetCategory === 'emotion') {
+        emotionTags.push(tag);
+      } else if (targetCategory === 'uncategorized') {
+        uncategorizedTags.push(tag);
+      } else if (dynamicCategories[targetCategory]) {
+        dynamicCategories[targetCategory].push(tag);
+      }
+      
+      // Update UI
+      updateTags(targetCategory);
+      
+      // Remove drag-over class
+      targetContainer.classList.remove('drag-over');
+
+      // Save to Firebase after the drag and drop operation
+      saveData().then(() => {
+        console.log('Drag and drop operation saved successfully');
+      }).catch(error => {
+        console.error('Error saving drag and drop operation:', error);
+        alert('Error saving changes. Please try again.');
+      });
+    }
+
+    function clearAllModules() {
+      if (confirm('Are you sure you want to delete all modules?')) {
+        dynamicModules = {};
+        saveData().then(() => {
+          console.log('All modules cleared successfully');
+          updateDynamicModules();
+        }).catch(error => {
+          console.error('Error clearing modules:', error);
+          alert('Error clearing modules. Please try again.');
+        });
+      }
+    }
+
+    function addNewModule() {
+      const moduleId = 'module_' + Date.now();
+      const newModule = {
+        name: 'New Module',
+        tags: [],
+        count: 1,
+        id: moduleId
+      };
+      
+      console.log('Creating new module:', newModule);
+      
+      // Check if a module with the same name already exists
+      const existingModule = Object.values(dynamicModules).find(m => m.name === newModule.name);
+      if (existingModule) {
+        alert('A module with this name already exists.');
+        return;
+      }
+      
+      // Add the new module
+      dynamicModules[moduleId] = newModule;
+      console.log('Added new module to dynamicModules:', dynamicModules);
+      
+      // Save to Firebase first
+      saveData().then(() => {
+        console.log('New module saved to Firebase');
+        // Then update the UI
+        updateDynamicModules();
+        
+        // Add event listener for the new input
+        const input = document.getElementById(`new${moduleId}`);
+        if (input) {
+          input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+              addTag(moduleId);
+            }
+          });
+        }
+        
+        // Update tags display for the new module
+        updateTags(moduleId);
+      }).catch(error => {
+        console.error("Error adding new module:", error);
+        alert('Error adding new module. Please try again.');
+      });
+    }
+
+    function updateDynamicModules() {
+      console.log('Updating dynamic modules');
+      const container = document.getElementById('dynamicModules');
+      container.innerHTML = '';
+      
+      // Sort modules by name to ensure consistent order
+      const sortedModules = Object.entries(dynamicModules).sort((a, b) => a[1].name.localeCompare(b[1].name));
+      
+      sortedModules.forEach(([id, module]) => {
+        console.log('Processing module:', id, module);
+        const moduleHtml = `
+          <div class="category-wrapper" id="${id}Module">
+            <div class="category-title">
+              <div class="title-container">
+                <button class="collapse-btn" onclick="toggleCollapse('${id}Module')">▼</button>
+                <h2 onclick="startEditingModule('${id}', this)">${module.name}</h2>
+                <select id="${id}Count" onchange="updateModuleCount('${id}')" class="clean-select">
+                  <option value="5" ${module.count === 5 ? 'selected' : ''}>5</option>
+                  <option value="4" ${module.count === 4 ? 'selected' : ''}>4</option>
+                  <option value="3" ${module.count === 3 ? 'selected' : ''}>3</option>
+                  <option value="2" ${module.count === 2 ? 'selected' : ''}>2</option>
+                  <option value="1" ${module.count === 1 ? 'selected' : ''}>1</option>
+                  <option value="0" ${module.count === 0 ? 'selected' : ''}>0</option>
+                </select>
+              </div>
+              <div class="input-container">
+                <input type="text" id="new${id}" placeholder="">
+              </div>
+            </div>
+            <div class="category-content" id="${id}ModuleContent">
+              <div class="tag-container" id="${id}Tags"></div>
+            </div>
+            <button onclick="deleteModule('${id}')" class="delete-btn">×</button>
+          </div>
+        `;
+        container.innerHTML += moduleHtml;
+      });
+      
+      // Update tags display for all modules
+      sortedModules.forEach(([id, module]) => {
+        updateTags(id);
+      });
+      
+      console.log('Finished updating dynamic modules');
+    }
+
+    function addModuleTag(moduleId) {
+      console.log("Adding tag to module:", moduleId);
+      const input = document.getElementById(`new${moduleId}`);
+      if (!input) {
+        console.error("Input element not found for module:", moduleId);
+        return;
+      }
+      
+      const tag = input.value.trim();
+      if (!tag) {
+        console.log("Empty tag, skipping");
+        return;
+      }
+      
+      try {
+        // Initialize tags array if it doesn't exist
+        if (!dynamicModules[moduleId]) {
+          dynamicModules[moduleId] = { tags: [] };
+        }
+        if (!dynamicModules[moduleId].tags) {
+          dynamicModules[moduleId].tags = [];
+        }
+        
+        // Add the tag
+        dynamicModules[moduleId].tags.push(tag);
+        console.log("Updated dynamicModules:", dynamicModules);
+        
+        // Clear input
+        input.value = '';
+        
+        // Save to Firebase and update UI
+        saveData().then(() => {
+          updateModuleTags(moduleId);
+          console.log("Tag added and saved successfully");
+        }).catch(error => {
+          console.error("Error saving tag:", error);
+        });
+      } catch (error) {
+        console.error("Error in addModuleTag:", error);
+      }
+    }
+
+    function updateModuleTags(moduleId) {
+      console.log("Updating tags for module:", moduleId);
+      const tagsContainer = document.getElementById(`${moduleId}-tags`);
+      if (!tagsContainer) {
+        console.error("Tags container not found for module:", moduleId);
+        return;
+      }
+      
+      // Clear existing tags
+      tagsContainer.innerHTML = '';
+      
+      // Add each tag
+      if (dynamicModules[moduleId] && dynamicModules[moduleId].tags) {
+        dynamicModules[moduleId].tags.forEach(tag => {
+          const tagElement = document.createElement('div');
+          tagElement.className = 'tag';
+          tagElement.innerHTML = `
+            ${tag}
+            <button onclick="removeModuleTag('${moduleId}', '${tag}')" class="delete-tag">×</button>
+          `;
+          tagsContainer.appendChild(tagElement);
+        });
+      }
+      console.log("Tags updated in UI");
+    }
+
+    function removeModuleTag(moduleId, tag) {
+      console.log("Removing tag:", tag, "from module:", moduleId);
+      if (dynamicModules[moduleId] && dynamicModules[moduleId].tags) {
+        dynamicModules[moduleId].tags = dynamicModules[moduleId].tags.filter(t => t !== tag);
+        
+        // Save to Firebase
+        saveData().then(() => {
+          // Update UI only after successful save
+          updateModuleTags(moduleId);
+          console.log("Tag removed and saved successfully");
+        }).catch(error => {
+          console.error("Error removing tag:", error);
+        });
+      }
+    }
+
+    function deleteModule(moduleId) {
+      if (confirm(`Are you sure you want to delete the ${dynamicModules[moduleId].name} module?`)) {
+        // Create a new object without the deleted module
+        const newDynamicModules = { ...dynamicModules };
+        delete newDynamicModules[moduleId];
+        dynamicModules = newDynamicModules;
+        
+        // Save to Firebase first
+        saveData().then(() => {
+          console.log('Module deleted successfully');
+          // Then update the UI
+          updateDynamicModules();
+        }).catch(error => {
+          console.error('Error deleting module:', error);
+          alert('Error deleting module. Please try again.');
+        });
+      }
+    }
+
+    function updateModuleCount(moduleId) {
+      const count = parseInt(document.getElementById(`${moduleId}Count`).value);
+      dynamicModules[moduleId].count = count;
+      saveData();
+    }
+
+    function updateEmotionCount() {
+      const count = parseInt(document.getElementById('emotionCount').value);
+      saveData();
+    }
+
+    function generateCombination() {
+      // Get all object categories (Uncategorized and dynamic categories)
+      const objectCategories = [
+        { name: 'uncategorized', tags: uncategorizedTags },
+        ...Object.entries(dynamicCategories).map(([key, tags]) => ({
+          name: key,
+          tags: tags
+        }))
+      ].filter(category => category.tags.length > 0);
+
+      if (objectCategories.length < 2) {
+        alert('Please add more items to categories before generating.');
+        return;
+      }
+
+      const objectCount = parseInt(document.getElementById('objectCount').value);
+      const useDifferentCategories = document.getElementById('differentCategories').checked;
+      
+      if (objectCount > 0) {
+        if (useDifferentCategories && objectCategories.length < objectCount) {
+          alert(`Not enough categories to select ${objectCount} different items. \nPlease add more categories or uncheck "Different Categories".`);
+          return;
+        }
+
+        const selectedCategories = [];
+        const selectedObjects = [];
+
+        while (selectedObjects.length < objectCount) {
+          let randomCategory;
+          if (useDifferentCategories) {
+            // Only select from categories that haven't been used yet
+            const availableCategories = objectCategories.filter(cat => !selectedCategories.includes(cat));
+            if (availableCategories.length === 0) break;
+            randomCategory = availableCategories[Math.floor(Math.random() * availableCategories.length)];
+          } else {
+            // Can select from any category
+            randomCategory = objectCategories[Math.floor(Math.random() * objectCategories.length)];
+          }
+
+          if (useDifferentCategories) {
+            selectedCategories.push(randomCategory);
+          }
+
+          // Get all available tags from the selected category that haven't been used yet
+          const availableTags = randomCategory.tags.filter(tag => !selectedObjects.includes(tag));
+          if (availableTags.length === 0) {
+            // If no new tags available in this category, try another category
+            continue;
+          }
+          
+          const randomObject = availableTags[Math.floor(Math.random() * availableTags.length)];
+          selectedObjects.push(randomObject);
+        }
+
+        if (selectedObjects.length === 0) {
+          alert('Could not generate combination. Please try again.');
+          return;
+        }
+
+        let combination = selectedObjects.map(obj => `<span class="tag">${obj}</span>`).join(' ');
+
+        // Add emotions if count > 0
+        const emotionCount = parseInt(document.getElementById('emotionCount').value);
+        if (emotionCount > 0) {
+          if (emotionTags.length < emotionCount) {
+            alert(`Not enough emotion tags. \nPlease add more emotions or reduce the count.`);
+            return;
+          }
+          const selectedEmotions = [];
+          while (selectedEmotions.length < emotionCount) {
+            const randomEmotion = emotionTags[Math.floor(Math.random() * emotionTags.length)];
+            if (!selectedEmotions.includes(randomEmotion)) {
+              selectedEmotions.push(randomEmotion);
+            }
+          }
+          combination += `<br>${selectedEmotions.map(emotion => `<span class="tag">${emotion}</span>`).join(' ')}`;
+        }
+
+        // Add dynamic modules
+        Object.entries(dynamicModules).forEach(([moduleId, module]) => {
+          if (module.count > 0 && module.tags.length > 0) {
+            if (module.tags.length < module.count) {
+              alert(`Not enough tags in module "${module.name}". \nPlease add more tags or reduce the count.`);
+              return;
+            }
+            const selectedTags = [];
+            while (selectedTags.length < module.count) {
+              const randomTag = module.tags[Math.floor(Math.random() * module.tags.length)];
+              if (!selectedTags.includes(randomTag)) {
+                selectedTags.push(randomTag);
+              }
+            }
+            combination += `<br>${selectedTags.map(tag => `<span class="tag">${tag}</span>`).join(' ')}`;
+          }
+        });
+
+        document.getElementById('generatedCombination').innerHTML = combination;
+        document.getElementById('clearButton').style.display = 'block';
+      }
+    }
+
+    function updateObjectCount() {
+      const count = parseInt(document.getElementById('objectCount').value);
+      saveData();
+    }
+
+    function deleteCategory(category) {
+      if (category === 'uncategorized') {
+        if (confirm(`Are you sure you want to delete the ${category} category?`)) {
+          uncategorizedTags = [];
+          updateTags(category);
+          saveData().then(() => {
+            console.log('Category cleared successfully');
+          }).catch(error => {
+            console.error('Error clearing category:', error);
+            alert('Error clearing category. Please try again.');
+          });
+        }
+      } else if (dynamicCategories[category]) {
+        if (confirm(`Are you sure you want to delete the ${category} category?`)) {
+          // Create a new object without the deleted category
+          const newDynamicCategories = { ...dynamicCategories };
+          delete newDynamicCategories[category];
+          dynamicCategories = newDynamicCategories;
+          
+          // Save to Firebase first
+          saveData().then(() => {
+            console.log('Category deleted successfully');
+            // Then update the UI
+            updateDynamicCategories();
+          }).catch(error => {
+            console.error('Error deleting category:', error);
+            alert('Error deleting category. Please try again.');
+          });
+        }
+      }
+    }
+
+    function finishEditing(category, element, input) {
+      const newName = input.value.trim();
+      if (newName && newName !== element.textContent) {
+        if (category === 'uncategorized') {
+          // Don't allow renaming Uncategorized
+          element.textContent = '𖡎';
+          return;
+        }
+        
+        const newKey = newName.toLowerCase();
+        if (dynamicCategories[category]) {
+          // Handle dynamic category rename
+          dynamicCategories[newKey] = dynamicCategories[category];
+          delete dynamicCategories[category];
+          // Save to Firebase after renaming
+          saveData().then(() => {
+            console.log('Dynamic category renamed successfully');
+            updateDynamicCategories();
+          }).catch(error => {
+            console.error('Error renaming dynamic category:', error);
+            alert('Error renaming category. Please try again.');
+          });
+        }
+      } else {
+        // If no new name or same name, restore the original display name
+        element.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+      }
+      
+      element.classList.remove('editing');
+    }
+
+    function startEditing(category, element) {
+      if (element.classList.contains('editing')) return;
+      
+      const currentName = element.textContent;
+      const input = document.createElement('input');
+      input.value = currentName;
+      
+      // Store the original category name
+      input.dataset.originalCategory = category;
+      
+      input.addEventListener('blur', () => {
+        const newName = input.value.trim();
+        if (!newName || newName === currentName) {
+          // If no new name or same name, restore the original display name
+          element.textContent = currentName;
+        } else {
+          finishEditing(category, element, input);
+        }
+        element.classList.remove('editing');
+      });
+      
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          finishEditing(category, element, input);
+        }
+      });
+      
+      element.classList.add('editing');
+      element.textContent = '';
+      element.appendChild(input);
+      input.focus();
+    }
+
+    function startEditingModule(moduleId, element) {
+      if (element.classList.contains('editing')) return;
+      
+      const currentName = element.textContent;
+      const input = document.createElement('input');
+      input.value = currentName;
+      
+      input.addEventListener('blur', () => {
+        const newName = input.value.trim();
+        if (!newName || newName === currentName) {
+          element.textContent = currentName;
+        } else {
+          finishEditingModule(moduleId, element, input);
+        }
+        element.classList.remove('editing');
+      });
+      
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          finishEditingModule(moduleId, element, input);
+        }
+      });
+      
+      element.classList.add('editing');
+      element.textContent = '';
+      element.appendChild(input);
+      input.focus();
+    }
+
+    function finishEditingModule(moduleId, element, input) {
+      const newName = input.value.trim();
+      if (newName && newName !== element.textContent) {
+        // Check if another module already has this name
+        const existingModule = Object.values(dynamicModules).find(m => m.name === newName && m.id !== moduleId);
+        if (existingModule) {
+          alert('A module with this name already exists.');
+          element.textContent = dynamicModules[moduleId].name;
+          element.classList.remove('editing');
+          return;
+        }
+        
+        // Update the module name
+        dynamicModules[moduleId].name = newName;
+        
+        // Save to Firebase first
+        saveData().then(() => {
+          console.log('Module renamed successfully');
+          // Then update the UI
+          updateDynamicModules();
+        }).catch(error => {
+          console.error("Error updating module name:", error);
+          alert('Error renaming module. Please try again.');
+        });
+      } else {
+        element.textContent = dynamicModules[moduleId].name;
+      }
+      
+      element.classList.remove('editing');
+    }
+
+    function updateModuleName(moduleId, newName) {
+      if (dynamicModules[moduleId]) {
+        dynamicModules[moduleId].name = newName;
+        saveData();
+        updateDynamicModules();
+      }
+    }
+
+    // Initialize all tags and dynamic categories
+    updateTags('uncategorized');
+    updateTags('emotion');
+    updateDynamicCategories();
+    updateDynamicModules();
+
+    // Initialize data when page loads
+    initializeData();
+
+    function toggleCollapse(categoryId) {
+      const content = document.getElementById(`${categoryId}Content`);
+      const button = content.previousElementSibling.querySelector('.collapse-btn');
+      
+      if (content.classList.contains('collapsed')) {
+        content.classList.remove('collapsed');
+        button.textContent = '▼';
+      } else {
+        content.classList.add('collapsed');
+        button.textContent = '◀';
+      }
+    }
+
+    function toggleDifferentCategories() {
+      const checkbox = document.getElementById('differentCategories');
+      const button = document.getElementById('differentCategoriesBtn');
+      if (checkbox && button) {
+        checkbox.checked = !checkbox.checked;
+        button.textContent = checkbox.checked ? '❖' : '◆';
+        console.log('Different Categories toggled:', checkbox.checked);
+      }
+    }
+
+    // Initialize the Different Categories button state
+    document.addEventListener('DOMContentLoaded', function() {
+      const checkbox = document.getElementById('differentCategories');
+      const button = document.getElementById('differentCategoriesBtn');
+      if (checkbox && button) {
+        checkbox.checked = true;
+        button.textContent = '❖';
+        console.log('Different Categories initialized');
+      }
+    });
+
+    function clearCombination() {
+      document.getElementById('generatedCombination').innerHTML = '';
+      document.getElementById('clearButton').style.display = 'none';
+    }
+
+    // Add event listeners for Enter key on all input fields
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add event listener for new category input
+      const newObjectInput = document.getElementById('newObject');
+      if (newObjectInput) {
+        newObjectInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            addNewCategory();
+          }
+        });
+      }
+
+      // Add event listener for emotion input
+      const newEmotionInput = document.getElementById('newEmotion');
+      if (newEmotionInput) {
+        newEmotionInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            addTag('emotion');
+          }
+        });
+      }
+
+      // Add event listener for uncategorized input
+      const newUncategorizedInput = document.getElementById('newUncategorized');
+      if (newUncategorizedInput) {
+        newUncategorizedInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            addTag('uncategorized');
+          }
+        });
+      }
+
+      // Add event listener for dynamic categories
+      Object.keys(dynamicCategories).forEach(category => {
+        const input = document.getElementById(`new${category}`);
+        if (input) {
+          input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+              addTag(category);
+            }
+          });
+        }
+      });
+
+      // Add event listener for dynamic modules
+      Object.keys(dynamicModules).forEach(moduleId => {
+        const input = document.getElementById(`new${moduleId}`);
+        if (input) {
+          input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+              addTag(moduleId);
+            }
+          });
+        }
+      });
+
+      // Add event delegation for module inputs
+      document.getElementById('dynamicModules').addEventListener('keypress', function(e) {
+        if (e.target.matches('input[type="text"]')) {
+          const moduleId = e.target.id.replace('new', '');
+          if (e.key === 'Enter') {
+            addTag(moduleId);
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
